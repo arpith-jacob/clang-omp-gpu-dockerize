@@ -3,6 +3,8 @@ MAINTAINER Arpith Jacob <arpith@gmail.com>
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
             ca-certificates \
+            libelf \
+            libffi \
             python \
             build-essential \
             git \
@@ -23,11 +25,17 @@ RUN mkdir -p /opt/ibm/sources && \
     -DLLVM_ENABLE_WERROR=OFF \
     -DBUILD_SHARED_LIBS=OFF \
     -DLLVM_ENABLE_RTTI=ON \
-    -DOPENMP_NVPTX_COMPUTE_CAPABILITY=37 \
+    -DCMAKE_C_FLAGS='-DOPENMP_NVPTX_COMPUTE_CAPABILITY=37 -mcpu=pwr8' \
+    -DCMAKE_CXX_FLAGS='-DOPENMP_NVPTX_COMPUTE_CAPABILITY=37 -mcpu=pwr8' \
+    -DLIBOMPTARGET_NVPTX_COMPUTE_CAPABILITY=37 \
     -DLIBOMPTARGET_NVPTX_ENABLE_BCLIB=true \
     -G \
     Ninja \
     ../sources/llvm && \
     ninja
+
+ENV LD_LIBRARY_PATH=/opt/ibm/clang-ykt/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH
+ENV LIBRARY_PATH=/opt/ibm/clang-ykt/lib:$LIBRARY_PATH
+ENV PATH=/opt/ibm/clang-ykt/bin:$PATH
 
 # Compiler is built in /opt/ibm/clang-ykt/bin/
