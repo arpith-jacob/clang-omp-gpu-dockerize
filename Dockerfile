@@ -43,10 +43,24 @@ RUN mkdir -p /opt/ibm/sources && \
     -G \
     Ninja \
     ../sources/llvm && \
-    ninja
+    ninja && \
+    ninja install
 
 ENV LD_LIBRARY_PATH=/opt/ibm/clang-ykt/lib:/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
 ENV LIBRARY_PATH=/opt/ibm/clang-ykt/lib:/usr/local/cuda-8.0/lib64:/usr/lib/nvidia-361:$LIBRARY_PATH
 ENV PATH=/opt/ibm/clang-ykt/bin:/usr/local/cuda/bin:$PATH
 
 # Compiler is built in /opt/ibm/clang-ykt/bin/
+
+RUN apt-get -y update && \
+    apt-get -y install curl iputils-ping unzip && \
+    apt-get clean && \
+    curl -H 'Cache-Control: no-cache' \
+        https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
+        | bash
+
+# Expose port 22 for local JARVICE emulation in docker
+EXPOSE 22
+
+# Fix may be needed
+RUN ln -s libcuda.so.1 /usr/lib/powerpc64le-linux-gnu/libcuda.so
